@@ -10,7 +10,7 @@ import Unclickable from './Unclickable';
 import { sendDataHandler } from '../functions';
 
 let serviceValue: number[];
-let budgetValue: number;
+let budgetValue: number = 0;
 
 const serviceValueHandler = (value: number[]) => {
   serviceValue = value;
@@ -21,6 +21,8 @@ const budgetValueHandle = (value: number) => {
 };
 
 const Form = () => {
+  const [serviceValidation, setServiceValidation] = useState(true);
+  const [budgetValidation, setbudgetValidation] = useState(true);
   const [checked, setChecked] = useState(false);
 
   const checkHandler = () => {
@@ -36,6 +38,15 @@ const Form = () => {
     },
     validationSchema,
     onSubmit: (values, actions) => {
+      console.log(values);
+
+      serviceValue.length === 0
+        ? setServiceValidation(false)
+        : setServiceValidation(true);
+
+      budgetValue === 0
+        ? setbudgetValidation(false)
+        : setbudgetValidation(true);
       const dataForm = { ...values, need: serviceValue, budget: budgetValue };
       sendDataHandler(dataForm);
     },
@@ -95,6 +106,11 @@ const Form = () => {
         </div>
         <div className="mt-[54px]">
           <Freelancers serviceValueHandle={serviceValueHandler} />
+          {serviceValidation === true ? null : (
+            <p className="text-red-500 text-xs p-0 m-0">
+              Please select a service
+            </p>
+          )}
         </div>
         <div className="mt-[39px] mb-[10px] flex flex-col">
           <label className="font-normal text-[20px] h-[37px]">
@@ -125,8 +141,14 @@ const Form = () => {
           </label>
           <input
             id="attachment"
-            value={formik.values.attachment}
-            onChange={formik.handleChange}
+            // value={formik.values.attachment}
+            onChange={(e) => {
+              console.log(e.currentTarget.files![0]);
+              return formik.setFieldValue(
+                'attachment',
+                e.currentTarget.files![0],
+              );
+            }}
             onBlur={formik.handleBlur}
             className={
               formik.errors.attachment && formik.touched.attachment
@@ -135,11 +157,12 @@ const Form = () => {
             }
             placeholder="Attachment here"
             type="file"
+            name="attachment"
             accept=".pdf,.doc,.docx"
           />
           {formik.errors.attachment && formik.touched.attachment && (
             <p className="text-red-500 text-xs p-0 m-0">
-              {formik.errors.details}
+              {formik.errors.attachment}
             </p>
           )}
           <p className="mt-[10px] text-[#B1B6C9]">
@@ -148,6 +171,11 @@ const Form = () => {
         </div>
         <div className="mt-[54px]">
           <Budget budgetValueHandle={budgetValueHandle} />
+          {budgetValidation ? null : (
+            <p className="text-red-500 text-xs p-0 m-0">
+              Please select a budget
+            </p>
+          )}
         </div>
         <div className="mt-[40px]">
           <input
